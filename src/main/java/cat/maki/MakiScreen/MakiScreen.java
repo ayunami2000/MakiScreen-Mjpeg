@@ -78,7 +78,6 @@ public final class MakiScreen extends JavaPlugin implements Listener {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
-        Player player = (Player) sender;
         if (command.getName().equals("maki")) {
             if(args.length==0){
                 sender.sendMessage("Usage: /maki [give|clear|toggle|size|url|delay]\n - give: Generates new maps and gives them to you.\n - clear: Clears all map data.\n - toggle: Toggles map playback.\n - size: Sets or gets the current size value.\n - url: Sets or gets the current mjpeg url.\n - delay: Sets or gets the current delay value.");
@@ -94,6 +93,7 @@ public final class MakiScreen extends JavaPlugin implements Listener {
                     if(sender instanceof ConsoleCommandSender) {
                         sender.sendMessage("Error: This command cannot be run from console!");
                     }else{
+                        Player player = (Player) sender;
                         for (int i=0; i<ConfigFile.getMapSize(); i++) {
                             MapView mapView = getServer().createMap(player.getWorld());
                             mapView.setScale(MapView.Scale.CLOSEST);
