@@ -1,8 +1,8 @@
 # MakiScreen Mjpeg
 > 📺 Streaming OBS video/Mjpeg into maps on item frames at a high frame rate
 
-https://github.com/ayunami2000/MakiScreen-Mjpeg/raw/master/images/2021-12-31_17.13.21.png
-https://github.com/ayunami2000/MakiScreen-Mjpeg/raw/master/images/2021-12-31_17.48.58.png
+![demo1](https://github.com/ayunami2000/MakiScreen-Mjpeg/raw/master/images/2021-12-31_17.13.21.png)
+![demo2](https://github.com/ayunami2000/MakiScreen-Mjpeg/raw/master/images/2021-12-31_17.48.58.png)
 
 ## How does it work
 
