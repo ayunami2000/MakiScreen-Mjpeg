@@ -1,0 +1,9 @@
+# Set your OBS output/mjpeg resolution according to this option below.
+# 1 = 256x128 = 2 maps
+# 2 = 512x256 = 8 maps
+# 3 = 1024x512 = 32 maps
+size: 2
+# Set this to your mjpeg URL. Use https://github.com/cvsandbox/cam2web/releases on Windows to mirror OBS to this.
+url: http://127.0.0.1:8000/camera/mjpeg
+# Time to wait when connection is broken, in milliseconds.
+delay: 10000
