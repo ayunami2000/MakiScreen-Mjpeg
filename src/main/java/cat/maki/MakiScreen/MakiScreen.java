@@ -34,6 +34,7 @@ public final class MakiScreen extends JavaPlugin implements Listener {
 
     public static boolean paused = false;
 
+    public static AudioPlayer audioPlayer = new AudioPlayer();
     public static String audioUrl = "";
 
     @Override
