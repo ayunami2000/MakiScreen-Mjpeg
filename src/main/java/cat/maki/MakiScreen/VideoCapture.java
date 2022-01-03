@@ -41,15 +41,16 @@ class VideoCaptureMjpeg extends Thread {
                 MjpegFrame frame = null;
 
                 try {
-                    MakiScreen.pitchDetection.beginPitchDetection();
+                    (new Thread(()->AudioPlayer.getAudio())).start();
                     while (!MakiScreen.paused&&(frame = in.readMjpegFrame()) != null) {
                         onFrame(toBufferedImage(frame.getImage()));
                         if(!currUrl.equals(ConfigFile.getUrl()))in.close();
                     }
-                    MakiScreen.pitchDetection.endPitchDetection();
+                    if(!AudioPlayer.enabled)(new Thread(()->AudioPlayer.getAudio())).start();
                 }catch(EOFException e){}
                 in.close();
             } catch (IOException e) {}
+            AudioPlayer.stopAudio();
             if(MakiScreen.paused||currUrl.equals(ConfigFile.getUrl())) {
                 do {
                     try {

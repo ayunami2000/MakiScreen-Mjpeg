@@ -34,8 +34,7 @@ public final class MakiScreen extends JavaPlugin implements Listener {
 
     public static boolean paused = false;
 
-    public static PitchDetection pitchDetection = new PitchDetection();
-    public static String audioDevice = "";
+    public static String audioUrl = "";
 
     @Override
     public void onEnable() {
@@ -86,7 +85,7 @@ public final class MakiScreen extends JavaPlugin implements Listener {
     public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
         if (command.getName().equals("maki")) {
             if(args.length==0){
-                sender.sendMessage("Usage: /maki [give|clear|toggle|size|url|delay]\n - give: Generates new maps and gives them to you.\n - clear: Clears all map data.\n - toggle: Toggles map playback.\n - size: Sets or gets the current size value.\n - url: Sets or gets the current mjpeg url.\n - delay: Sets or gets the current delay value.");
+                sender.sendMessage("Usage: /maki [audio|give|clear|toggle|size|url|delay]\n - audio: Set audio URL for audio support.\n - give: Generates new maps and gives them to you.\n - clear: Clears all map data.\n - toggle: Toggles map playback.\n - size: Sets or gets the current size value.\n - url: Sets or gets the current mjpeg url.\n - delay: Sets or gets the current delay value.");
                 return true;
             }
             if (!sender.isOp()) {
@@ -97,16 +96,10 @@ public final class MakiScreen extends JavaPlugin implements Listener {
             switch(args[0]){
                 case "audio":
                     if(args.length==1){
-                        audioDevice="";
-                        sender.sendMessage("Audio Devices:");
-                        int ind=0;
-                        for (Mixer.Info mixerInfo : AudioSystem.getMixerInfo()) {
-                            sender.sendMessage(ind+"~ "+mixerInfo.getName());
-                            ind++;
-                        }
-                        if(ind==0)sender.sendMessage("(there were no audio devices...)");
+                        audioUrl="";
+                        sender.sendMessage("Disabled audio!");
                     }else{
-                        audioDevice=String.join(" ", Arrays.copyOfRange(args,1,args.length));
+                        audioUrl=String.join(" ",Arrays.copyOfRange(args,1,args.length));
                     }
                     break;
                 case "give":
