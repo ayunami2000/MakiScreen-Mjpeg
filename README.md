@@ -43,5 +43,3 @@ You can contact me on **Discord** at `ayunami2000#5250` or on **Twitter** at `@n
 - [EzMediaCore](https://github.com/MinecraftMediaLibrary/EzMediaCore) for the dither algorithm
 - [MakiScreen](https://github.com/makitsune/MakiScreen) Lagless map rendering
 - [MJPG](https://github.com/Wildcats3540/Dashboard/tree/master/Dashboard/src/com/wildcatrobotics/dashboard/MJPG) MJPEG support
-- [PolyphonicPitchDetection](https://github.com/tjrantal/PolyphonicPitchDetection) Audio to Midi
-- [SongPlayer](https://github.com/hhhzzzsss/SongPlayer) Midi to Noteblocks
