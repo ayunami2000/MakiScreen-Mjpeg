@@ -33,7 +33,7 @@ class VideoCaptureMjpeg extends Thread {
     }
 
     public void run() {
-        while(this.isAlive()) {
+        while(this.isAlive()&&this.running) {
             String currUrl=ConfigFile.getUrl();
             try {
                 MjpegInputStream in = new MjpegInputStream(new URL(currUrl).openStream());
@@ -41,10 +41,12 @@ class VideoCaptureMjpeg extends Thread {
                 MjpegFrame frame = null;
 
                 try {
+                    MakiScreen.pitchDetection.beginPitchDetection();
                     while (!MakiScreen.paused&&(frame = in.readMjpegFrame()) != null) {
                         onFrame(toBufferedImage(frame.getImage()));
                         if(!currUrl.equals(ConfigFile.getUrl()))in.close();
                     }
+                    MakiScreen.pitchDetection.endPitchDetection();
                 }catch(EOFException e){}
                 in.close();
             } catch (IOException e) {}

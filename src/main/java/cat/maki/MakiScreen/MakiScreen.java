@@ -13,9 +13,12 @@ import org.bukkit.map.MapView;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Mixer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -30,6 +33,9 @@ public final class MakiScreen extends JavaPlugin implements Listener {
     private VideoCapture videoCapture;
 
     public static boolean paused = false;
+
+    public static PitchDetection pitchDetection = new PitchDetection();
+    public static String audioDevice = "";
 
     @Override
     public void onEnable() {
@@ -89,6 +95,20 @@ public final class MakiScreen extends JavaPlugin implements Listener {
             }
 
             switch(args[0]){
+                case "audio":
+                    if(args.length==1){
+                        audioDevice="";
+                        sender.sendMessage("Audio Devices:");
+                        int ind=0;
+                        for (Mixer.Info mixerInfo : AudioSystem.getMixerInfo()) {
+                            sender.sendMessage(ind+"~ "+mixerInfo.getName());
+                            ind++;
+                        }
+                        if(ind==0)sender.sendMessage("(there were no audio devices...)");
+                    }else{
+                        audioDevice=String.join(" ", Arrays.copyOfRange(args,1,args.length));
+                    }
+                    break;
                 case "give":
                     if(sender instanceof ConsoleCommandSender) {
                         sender.sendMessage("Error: This command cannot be run from console!");
