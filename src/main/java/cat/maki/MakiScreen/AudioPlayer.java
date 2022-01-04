@@ -17,7 +17,7 @@ public class AudioPlayer implements Runnable {
     private int requests=0;
     @Override
     public void run(){
-        if(MakiScreen.audioUrl.equals("")){
+        if(ConfigFile.getAudio().equals("")){
             Thread.currentThread().stop();
             return;
         }
@@ -29,14 +29,14 @@ public class AudioPlayer implements Runnable {
         }
         requests++;
         enabled=true;
-        String currUrl=MakiScreen.audioUrl;
+        String currUrl=ConfigFile.getAudio();
         try {
             URL url = new URL(currUrl);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             InputStream in = urlConnection.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String line="";
-            while (currUrl.equals(MakiScreen.audioUrl)&&enabled&&!MakiScreen.paused&&(line = reader.readLine()) != null) {
+            while (currUrl.equals(ConfigFile.getAudio())&&enabled&&!MakiScreen.paused&&(line = reader.readLine()) != null) {
                 String[] audparts=line.split(",");
                 if(audparts.length==3) {
                     for (Player player : Bukkit.getOnlinePlayers()) {

@@ -8,13 +8,14 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 public class ConfigFile extends BukkitRunnable {
-    private static int size;
-    private static int delay;
-    private static String url;
-    private static int mapSize;
-    private static int mapWidth;
-    private static int VCWidth;
-    private static int VCHeight;
+    private static int size=2;
+    private static int delay=10000;
+    private static String url="http://127.0.0.1:8000/camera/mjpeg";
+    private static String audurl="";
+    private static int mapSize=8;
+    private static int mapWidth=4;
+    private static int VCWidth=128*4;
+    private static int VCHeight=128*2;
     private static FileConfiguration config;
     public Plugin plugin;
 
@@ -44,7 +45,12 @@ public class ConfigFile extends BukkitRunnable {
         if (config.contains("url")&&!config.getString("url").isEmpty()) {
             url=config.getString("url");
         } else {
-            config.addDefault("url", "null");
+            config.addDefault("url", "");
+        }
+        if (config.contains("audio")) {
+            audurl=config.getString("audio");
+        } else {
+            config.addDefault("audio", "");
         }
     }
 
@@ -93,6 +99,10 @@ public class ConfigFile extends BukkitRunnable {
         return url;
     }
 
+    public static String getAudio() {
+        return audurl;
+    }
+
     public static int getDelay() {
         return delay;
     }
@@ -109,6 +119,9 @@ public class ConfigFile extends BukkitRunnable {
                 break;
             case "url":
                 url=(String)val;
+                break;
+            case "audio":
+                audurl=(String)val;
                 break;
             case "delay":
                 delay=(int)val;

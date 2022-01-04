@@ -36,7 +36,6 @@ public final class MakiScreen extends JavaPlugin implements Listener {
     public static boolean paused = false;
 
     public static AudioPlayer audioPlayer = new AudioPlayer();
-    public static String audioUrl = "";
 
     @Override
     public void onEnable() {
@@ -101,10 +100,11 @@ public final class MakiScreen extends JavaPlugin implements Listener {
             switch(args[0]){
                 case "audio":
                     if(args.length==1){
-                        audioUrl="";
+                        ConfigFile.setVal("audio","");
                         sender.sendMessage("Disabled audio!");
                     }else{
-                        audioUrl=String.join(" ",Arrays.copyOfRange(args,1,args.length));
+                        ConfigFile.setVal("audio",args[1]);
+                        sender.sendMessage("Audio URL is now: "+args[1]);
                     }
                     break;
                 case "give":

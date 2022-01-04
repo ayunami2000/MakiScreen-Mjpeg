@@ -7,3 +7,5 @@ size: 2
 url: http://127.0.0.1:8000/camera/mjpeg
 # Time to wait when connection is broken, in milliseconds.
 delay: 10000
+# Set this to your audio URL. Use https://github.com/ayunami2000/ayunAudioStreamer to stream audio.
+audio: ''
