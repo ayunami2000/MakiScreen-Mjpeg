@@ -11,6 +11,7 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.sound.sampled.AudioSystem;
@@ -72,6 +73,9 @@ public final class MakiScreen extends JavaPlugin implements Listener {
         FramePacketSender framePacketSender =
             new FramePacketSender(this, frameProcessorTask.getFrameBuffers());
         framePacketSender.runTaskTimerAsynchronously(this, 0, 1);
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, (Runnable) () -> {
+            audioPlayer.resetReqs();
+        }, 0, 100);
     }
 
     @Override

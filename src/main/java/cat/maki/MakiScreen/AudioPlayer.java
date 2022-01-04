@@ -12,14 +12,22 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class AudioPlayer implements Runnable {
-    private static Sound[] sounds=new Sound[]{Sound.BLOCK_NOTE_BLOCK_HARP,Sound.BLOCK_NOTE_BLOCK_BASEDRUM,Sound.BLOCK_NOTE_BLOCK_SNARE,Sound.BLOCK_NOTE_BLOCK_HAT,Sound.BLOCK_NOTE_BLOCK_BASS,Sound.BLOCK_NOTE_BLOCK_FLUTE,Sound.BLOCK_NOTE_BLOCK_BELL,Sound.BLOCK_NOTE_BLOCK_GUITAR,Sound.BLOCK_NOTE_BLOCK_CHIME,Sound.BLOCK_NOTE_BLOCK_XYLOPHONE,Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE,Sound.BLOCK_NOTE_BLOCK_COW_BELL,Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO,Sound.BLOCK_NOTE_BLOCK_BIT,Sound.BLOCK_NOTE_BLOCK_BANJO,Sound.BLOCK_NOTE_BLOCK_PLING};
+    private static final Sound[] sounds=new Sound[]{Sound.BLOCK_NOTE_BLOCK_HARP,Sound.BLOCK_NOTE_BLOCK_BASEDRUM,Sound.BLOCK_NOTE_BLOCK_SNARE,Sound.BLOCK_NOTE_BLOCK_HAT,Sound.BLOCK_NOTE_BLOCK_BASS,Sound.BLOCK_NOTE_BLOCK_FLUTE,Sound.BLOCK_NOTE_BLOCK_BELL,Sound.BLOCK_NOTE_BLOCK_GUITAR,Sound.BLOCK_NOTE_BLOCK_CHIME,Sound.BLOCK_NOTE_BLOCK_XYLOPHONE,Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE,Sound.BLOCK_NOTE_BLOCK_COW_BELL,Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO,Sound.BLOCK_NOTE_BLOCK_BIT,Sound.BLOCK_NOTE_BLOCK_BANJO,Sound.BLOCK_NOTE_BLOCK_PLING};
     private boolean enabled=false;
+    private int requests=0;
     @Override
     public void run(){
         if(MakiScreen.audioUrl.equals("")){
             Thread.currentThread().stop();
             return;
         }
+        if(requests>=10){
+            //too many requests, pausing!
+            MakiScreen.paused=true;
+            requests=0;
+            return;
+        }
+        requests++;
         enabled=true;
         String currUrl=MakiScreen.audioUrl;
         try {
@@ -29,13 +37,10 @@ public class AudioPlayer implements Runnable {
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String line="";
             while (currUrl.equals(MakiScreen.audioUrl)&&enabled&&!MakiScreen.paused&&(line = reader.readLine()) != null) {
-                String[] audpartss=line.trim().split(";");
-                for (String audpart : audpartss) {
-                    String[] audparts=audpart.split(",");
-                    if(audparts.length==3) {
-                        for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.playSound(player.getEyeLocation(), sounds[Integer.parseInt(audparts[0])], Float.parseFloat(audparts[1]), Float.parseFloat(audparts[2]));
-                        }
+                String[] audparts=line.split(",");
+                if(audparts.length==3) {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        player.playSound(player.getLocation(), sounds[Integer.parseInt(audparts[0])], Float.parseFloat(audparts[1]), Float.parseFloat(audparts[2]));
                     }
                 }
             }
@@ -51,5 +56,8 @@ public class AudioPlayer implements Runnable {
     }
     public boolean isEnabled(){
         return enabled;
+    }
+    public void resetReqs(){
+        requests=0;
     }
 }
