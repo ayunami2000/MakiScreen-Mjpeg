@@ -1,6 +1,7 @@
 package cat.maki.MakiScreen;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -38,9 +39,12 @@ public class AudioPlayer implements Runnable {
             String line="";
             while (currUrl.equals(ConfigFile.getAudio())&&enabled&&!MakiScreen.paused&&(line = reader.readLine()) != null) {
                 String[] audparts=line.split(",");
-                if(audparts.length==3) {
+                if(audparts.length==4) {
+                    float panning=Float.parseFloat(audparts[3]);
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.playSound(player.getLocation(), sounds[Integer.parseInt(audparts[0])], Float.parseFloat(audparts[1]), Float.parseFloat(audparts[2]));
+                        Location localLoc=player.getLocation().clone();
+                        localLoc.add(panning*Math.cos(Math.PI*localLoc.getYaw()/180.0),0,panning*Math.sin(Math.PI*localLoc.getYaw()/180.0));
+                        player.playSound(localLoc, sounds[Integer.parseInt(audparts[0])], Float.parseFloat(audparts[1]), Float.parseFloat(audparts[2]));
                     }
                 }
             }
