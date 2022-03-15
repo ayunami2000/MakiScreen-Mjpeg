@@ -42,7 +42,7 @@ class VideoCaptureMjpeg extends Thread {
 
                 try {
                     (new Thread(MakiScreen.audioPlayer)).start();
-                    while (!MakiScreen.paused&&(frame = in.readMjpegFrame()) != null) {
+                    while (this.running && !MakiScreen.paused&&(frame = in.readMjpegFrame()) != null) {
                         onFrame(toBufferedImage(frame.getImage()));
                         if(!currUrl.equals(ConfigFile.getUrl()))in.close();
                         if(!MakiScreen.audioPlayer.isEnabled())(new Thread(MakiScreen.audioPlayer)).start();
@@ -51,19 +51,21 @@ class VideoCaptureMjpeg extends Thread {
                 in.close();
             } catch (IOException e) {}
             MakiScreen.audioPlayer.stopIt();
+            if(!this.running)break;
             if(MakiScreen.paused||currUrl.equals(ConfigFile.getUrl())) {
                 do {
                     try {
                         Thread.sleep(MakiScreen.paused?1000:ConfigFile.getDelay());
                     } catch (InterruptedException e) {
                     }
-                } while (MakiScreen.paused);
+                } while (MakiScreen.paused&&this.running);
             }
         }
     }
 
     public void cleanup() {
         running = false;
+        Thread.currentThread().interrupt();//will THIS work???????
     }
 }
 
