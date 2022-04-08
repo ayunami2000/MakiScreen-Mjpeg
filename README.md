@@ -7,7 +7,7 @@
 
 ## How does it work
 
-- Load jar plugin onto 1.17.1 Paper server
+- Load jar plugin onto 1.5.2 CraftBukkit server
 - It will connect to URL specified in the config.yml file as an mjpeg stream
 - Use [cam2web](https://github.com/cvsandbox/cam2web/releases) to send [OBS Virtual Camera](https://www.youtube.com/watch?v=bfrknjDzukI) as JPG frames to the HTTP port
 - 
@@ -17,17 +17,17 @@
 
 **Beware that map will probably be overwritten**
 
-- Download [MakiScreen](https://github.com/ayunami2000/MakiScreen-Mjpeg/actions) jar and place in Spigot 1.13+ server plugins
+- Download [MakiScreen](https://github.com/ayunami2000/MakiScreen-Mjpeg/actions) jar and place in CraftBukkit 1.5.2 server plugins
 - Download [cam2web](https://github.com/cvsandbox/cam2web/releases) and make sure it's in your path (optional)
 - Download [OBS](https://obsproject.com) (optional)
 - Port forward the port that cam2web uses (if server is not the same as the one streaming) (this port is customizable)
-- Run **Paper** server, and then turn it off after the server has finished starting up
+- Run **CraftBukkit** server, and then turn it off after the server has finished starting up
 - Change the ***size*** setting in config.yml to match your output resolution
 - Change the ***url*** setting in config.yml to match your mjpeg url (cam2web default: http://127.0.0.1:8000/camera/mjpeg)
 - Run **OBS** and make sure the output resolution is according to the config option and the base resolution is set to same as the config or any resolution with 2:1 aspect ratio
 - Turn on your ***OBS Virtual Camera***
 - Run cam2web, choose ***OBS Virtual Camera***, and choose the smaller of the two resolutions. Then, press "Start streaming."
-- Run **Paper** server and Type `/maki give` in Minecraft to get the maps
+- Run **CraftBukkit** server and Type `/maki give` in Minecraft to get the maps
 
 if your performance went doodoo, you could try removing both data.yml in the MakiScreen folder and removing anything in the data folder in the world folder.
 you can also try `/maki clear` out and then restart the server. This simply clears data.yml
