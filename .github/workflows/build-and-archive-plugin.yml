@@ -20,7 +20,7 @@ jobs:
                       ${{ runner.os }}-maven-
             
             - name: Download CraftBukkit 1.5.2
-              run: wget -O lib/craftbukkit-1.5.2-R1.0.jar https://github.com/LAX1DUDE/eaglercraft/raw/main/stable-download/java/bukkit_command/craftbukkit-1.5.2-R1.0.jar
+              run: mkdir lib ; wget -O lib/craftbukkit-1.5.2-R1.0.jar https://github.com/LAX1DUDE/eaglercraft/raw/main/stable-download/java/bukkit_command/craftbukkit-1.5.2-R1.0.jar
 
             - name: Build and package
               run: mvn -B package
