@@ -24,7 +24,6 @@
 package cat.maki.MakiScreen.dither;
 
 import java.awt.Color;
-import org.jetbrains.annotations.NotNull;
 
 public final class MapPalette {
 
@@ -180,12 +179,10 @@ public final class MapPalette {
         };
   }
 
-  @NotNull
   private static Color c(final int r, final int g, final int b) {
     return new Color(r, g, b);
   }
 
-  @NotNull
   public static Color getColor(final byte val) {
     return NMS_PALETTE[val];
   }
