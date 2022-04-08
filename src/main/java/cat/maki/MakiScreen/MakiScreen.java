@@ -7,12 +7,10 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +19,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public final class MakiScreen extends JavaPlugin implements Listener {
+    public static MakiScreen INSTANCE;
 
     private final Logger logger = getLogger();
 
@@ -30,13 +29,13 @@ public final class MakiScreen extends JavaPlugin implements Listener {
 
     public static boolean paused = false;
 
-    public static AudioPlayer audioPlayer = new AudioPlayer();
-
     public static List<BukkitTask> tasks = new ArrayList<>();
     public static List<Integer> taskints = new ArrayList<>();
 
     @Override
     public void onEnable() {
+        INSTANCE = this;
+
         ConfigFile configFile = new ConfigFile(this);
         configFile.run();
 
@@ -70,9 +69,6 @@ public final class MakiScreen extends JavaPlugin implements Listener {
         FramePacketSender framePacketSender =
             new FramePacketSender(this, frameProcessorTask.getFrameBuffers());
         tasks.add(framePacketSender.runTaskTimerAsynchronously(this, 0, 1));
-        taskints.add(getServer().getScheduler().scheduleSyncRepeatingTask(this, (Runnable) () -> {
-            audioPlayer.resetReqs();
-        }, 0, 100));
     }
 
     @Override
@@ -86,10 +82,10 @@ public final class MakiScreen extends JavaPlugin implements Listener {
 
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, Command command, @NotNull String alias, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
         if (command.getName().equals("maki")) {
             if(args.length==0){
-                sender.sendMessage("Usage: /maki [audio|give|clear|toggle|size|url|delay]\n - audio: Set audio URL for audio support.\n - give: Generates new maps and gives them to you.\n - clear: Clears all map data.\n - toggle: Toggles map playback.\n - size: Sets or gets the current size value.\n - url: Sets or gets the current mjpeg url.\n - delay: Sets or gets the current delay value.");
+                sender.sendMessage("Usage: /maki [give|clear|toggle|size|url|delay]\n - give: Generates new maps and gives them to you.\n - clear: Clears all map data.\n - toggle: Toggles map playback.\n - size: Sets or gets the current size value.\n - url: Sets or gets the current mjpeg url.\n - delay: Sets or gets the current delay value.");
                 return true;
             }
             if (!sender.isOp()) {
@@ -98,15 +94,6 @@ public final class MakiScreen extends JavaPlugin implements Listener {
             }
 
             switch(args[0]){
-                case "audio":
-                    if(args.length==1){
-                        ConfigFile.setVal("audio","");
-                        sender.sendMessage("Disabled audio!");
-                    }else{
-                        ConfigFile.setVal("audio",args[1]);
-                        sender.sendMessage("Audio URL is now: "+args[1]);
-                    }
-                    break;
                 case "give":
                     if(sender instanceof ConsoleCommandSender) {
                         sender.sendMessage("Error: This command cannot be run from console!");
@@ -115,21 +102,18 @@ public final class MakiScreen extends JavaPlugin implements Listener {
                         for (int i=0; i<ConfigFile.getMapSize(); i++) {
                             MapView mapView = getServer().createMap(player.getWorld());
                             mapView.setScale(MapView.Scale.CLOSEST);
-                            mapView.setUnlimitedTracking(true);
                             for (MapRenderer renderer : mapView.getRenderers()) {
                                 mapView.removeRenderer(renderer);
                             }
 
-                            ItemStack itemStack = new ItemStack(Material.FILLED_MAP);
+                            ItemStack itemStack = new ItemStack(Material.MAP);
 
-                            MapMeta mapMeta = (MapMeta) itemStack.getItemMeta();
-                            mapMeta.setMapView(mapView);
+                            itemStack.setDurability(mapView.getId());
 
-                            itemStack.setItemMeta(mapMeta);
                             player.getInventory().addItem(itemStack);
                             screens.add(new ScreenPart(mapView.getId(), i));
                             ImageManager manager = ImageManager.getInstance();
-                            manager.saveImage(mapView.getId(), i);
+                            manager.saveImage((int) mapView.getId(), i);
                         }
                     }
                     break;

@@ -48,7 +48,7 @@ public class ImageManager implements Listener {
      *
      */
     public void init() {
-        Bukkit.getServer().getPluginManager().registerEvents(this, MakiScreen.getPlugin(MakiScreen.class));
+        Bukkit.getServer().getPluginManager().registerEvents(this, MakiScreen.INSTANCE);
         loadImages();
     }
 
@@ -60,7 +60,6 @@ public class ImageManager implements Listener {
             for (MapRenderer renderer : view.getRenderers())
                 view.removeRenderer(renderer);
             view.setScale(Scale.CLOSEST);
-            view.setTrackingPosition(false);
             MakiScreen.screens.add(new ScreenPart(view.getId(), getImage(view.getId())));
         }
     }
@@ -115,7 +114,7 @@ public class ImageManager implements Listener {
      */
     static class CustomFile {
 
-        private final MakiScreen plugin = MakiScreen.getPlugin(MakiScreen.class);
+        private final MakiScreen plugin = MakiScreen.INSTANCE;
         private FileConfiguration dataConfig = null;
         private File dataConfigFile = null;
         private final String name;
@@ -135,7 +134,7 @@ public class ImageManager implements Listener {
             InputStream defConfigStream = plugin.getResource(name);
             if (defConfigStream != null) {
                 YamlConfiguration defConfig = YamlConfiguration
-                        .loadConfiguration(new InputStreamReader(defConfigStream));
+                        .loadConfiguration(defConfigStream);
                 this.dataConfig.setDefaults(defConfig);
             }
         }

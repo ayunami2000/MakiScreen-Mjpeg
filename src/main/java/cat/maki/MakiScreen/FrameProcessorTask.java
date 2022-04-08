@@ -1,12 +1,12 @@
 package cat.maki.MakiScreen;
 
-import com.google.common.collect.EvictingQueue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static cat.maki.MakiScreen.dither.DitherLookupUtil.COLOR_MAP;
 import static cat.maki.MakiScreen.dither.DitherLookupUtil.FULL_COLOR_MAP;
@@ -14,7 +14,7 @@ import static cat.maki.MakiScreen.dither.DitherLookupUtil.FULL_COLOR_MAP;
 class FrameProcessorTask extends BukkitRunnable {
 
   private final Object lock = new Object();
-  private final Queue<byte[][]> frameBuffers = EvictingQueue.create(450);
+  private final Queue<byte[][]> frameBuffers = new LinkedBlockingQueue<>(450); // notice: blocking whereas guava's is not blocking // EvictingQueue.create(450)
   private final int mapSize;
 
   private final byte[] ditheredFrameData;
@@ -172,6 +172,9 @@ class FrameProcessorTask extends BukkitRunnable {
         buffers[partId] = getMapData(partId, frameWidth);
       }
 
+      if (frameBuffers.size() >= 450) {
+        frameBuffers.remove();
+      }
       frameBuffers.offer(buffers);
     }
   }

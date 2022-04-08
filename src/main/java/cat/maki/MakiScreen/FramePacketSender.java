@@ -1,9 +1,9 @@
 package cat.maki.MakiScreen;
 
-import net.minecraft.network.protocol.game.PacketPlayOutMap;
-import net.minecraft.world.level.saveddata.maps.WorldMap.b;
+import net.minecraft.server.v1_5_R3.Item;
+import net.minecraft.server.v1_5_R3.Packet131ItemData;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_5_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,11 +31,11 @@ class FramePacketSender extends BukkitRunnable implements Listener {
     if (buffers == null) {
       return;
     }
-    List<PacketPlayOutMap> packets = new ArrayList<>(MakiScreen.screens.size());
+    List<Packet131ItemData> packets = new ArrayList<>(MakiScreen.screens.size());
     for (ScreenPart screenPart : MakiScreen.screens) {
       byte[] buffer = buffers[screenPart.partId];
       if (buffer != null) {
-        PacketPlayOutMap packet = getPacket(screenPart.mapId, buffer);
+        Packet131ItemData packet = getPacket(screenPart.mapId, buffer);
         if (!screenPart.modified) {
           packets.add(0, packet);
         } else {
@@ -68,7 +68,7 @@ class FramePacketSender extends BukkitRunnable implements Listener {
     new BukkitRunnable() {
       @Override
       public void run() {
-        List<PacketPlayOutMap> packets = new ArrayList<>();
+        List<Packet131ItemData> packets = new ArrayList<>();
         for (ScreenPart screenPart : MakiScreen.screens) {
           if (screenPart.lastFrameBuffer != null) {
             //this SHOULD work but it doesnt lol
@@ -82,21 +82,19 @@ class FramePacketSender extends BukkitRunnable implements Listener {
     //MakiScreen.tasks.add(task);
   }
 
-  private void sendToPlayer(Player player, List<PacketPlayOutMap> packets) {
+  private void sendToPlayer(Player player, List<Packet131ItemData> packets) {
     CraftPlayer craftPlayer = (CraftPlayer) player;
-    for (PacketPlayOutMap packet : packets) {
+    for (Packet131ItemData packet : packets) {
       if (packet != null) {
-        craftPlayer.getHandle().networkManager.sendPacket(packet);
+        craftPlayer.getHandle().playerConnection.networkManager.queue(packet);
       }
     }
   }
 
-  private PacketPlayOutMap getPacket(int mapId, byte[] data) {
+  private Packet131ItemData getPacket(int mapId, byte[] data) {
     if (data == null) {
       throw new NullPointerException("data is null");
     }
-    return new PacketPlayOutMap(
-        mapId, (byte) 0, false, null,
-        new b(0, 0, 128, 128, data));
+    return new Packet131ItemData((short) Item.MAP.id, (short) mapId, data);
   }
 }
