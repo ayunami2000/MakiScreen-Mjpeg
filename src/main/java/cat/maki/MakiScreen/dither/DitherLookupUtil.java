@@ -23,6 +23,8 @@
  */
 package cat.maki.MakiScreen.dither;
 
+import org.bukkit.map.MapPalette;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +77,7 @@ public final class DitherLookupUtil {
     final List<Integer> colors = new ArrayList<>();
     for (int i = 0; i < 256; ++i) {
       try {
+        //final Color color = MapPalette.getColor((byte) i);
         final Color color = MapPalette.getColor((byte) i);
         colors.add(color.getRGB());
       } catch (final IndexOutOfBoundsException e) {

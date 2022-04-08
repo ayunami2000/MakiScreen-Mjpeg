@@ -1,13 +1,11 @@
 package cat.maki.MakiScreen;
 
-import net.minecraft.server.v1_5_R3.Item;
 import net.minecraft.server.v1_5_R3.Packet131ItemData;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_5_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -35,11 +33,23 @@ class FramePacketSender extends BukkitRunnable implements Listener {
     for (ScreenPart screenPart : MakiScreen.screens) {
       byte[] buffer = buffers[screenPart.partId];
       if (buffer != null) {
-        Packet131ItemData packet = getPacket(screenPart.mapId, buffer);
-        if (!screenPart.modified) {
-          packets.add(0, packet);
-        } else {
-          packets.add(packet);
+        for (int col = 0; col < 128; ++col) {
+          byte[] raw = new byte[131];
+          raw[0] = 0;//means map
+          raw[1] = (byte) col;//x
+          raw[2] = 0;//y
+
+          for (int row = 0; row < 128; ++row) {
+            raw[3 + row] = buffer[row * 128 + col];
+          }
+
+          Packet131ItemData packet = getPacket(screenPart.mapId, raw);
+
+          if (!screenPart.modified) {
+            packets.add(0, packet);
+          } else {
+            packets.add(packet);
+          }
         }
         screenPart.modified = true;
         screenPart.lastFrameBuffer = buffer;
@@ -62,6 +72,7 @@ class FramePacketSender extends BukkitRunnable implements Listener {
     frameNumber++;
   }
 
+  /*
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
     //do i REALLY need this to be added to the task list? disabled for now...
@@ -81,6 +92,7 @@ class FramePacketSender extends BukkitRunnable implements Listener {
     }.runTaskLater(plugin, 10);
     //MakiScreen.tasks.add(task);
   }
+  */
 
   private void sendToPlayer(Player player, List<Packet131ItemData> packets) {
     CraftPlayer craftPlayer = (CraftPlayer) player;
@@ -95,6 +107,6 @@ class FramePacketSender extends BukkitRunnable implements Listener {
     if (data == null) {
       throw new NullPointerException("data is null");
     }
-    return new Packet131ItemData((short) Item.MAP.id, (short) mapId, data);
+    return new Packet131ItemData((short) Material.MAP.getId(), (short) mapId, data);
   }
 }

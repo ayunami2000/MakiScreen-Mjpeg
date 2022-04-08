@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public final class MakiScreen extends JavaPlugin implements Listener {
     public static MakiScreen INSTANCE;
 
-    private final Logger logger = getLogger();
+    private Logger logger;
 
     public static final Set<ScreenPart> screens = new TreeSet<>(
         Comparator.comparingInt(to -> to.mapId));
@@ -35,6 +35,7 @@ public final class MakiScreen extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         INSTANCE = this;
+        logger = getLogger();
 
         ConfigFile configFile = new ConfigFile(this);
         configFile.run();
