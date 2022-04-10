@@ -2,7 +2,7 @@
 > 📺 Streaming OBS video/Mjpeg into maps on item frames at a high frame rate
 
 ![demo1](https://github.com/ayunami2000/MakiScreen-Mjpeg/raw/1.5.2/images/demo1.png)
-*images taken on TotalFreedom: play.totalfreedom.me*
+*image taken on SealCraft: https://sites.google.com/view/sealcentral/sealcraft-v1-5-2*
 
 ## How does it work
 
