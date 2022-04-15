@@ -37,6 +37,8 @@ public final class MakiScreen extends JavaPlugin implements Listener {
         INSTANCE = this;
         logger = getLogger();
 
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "EAG|AyunamiMap");
+
         ConfigFile configFile = new ConfigFile(this);
         configFile.run();
 
@@ -79,6 +81,7 @@ public final class MakiScreen extends JavaPlugin implements Listener {
         videoCapture.cleanup();
         for (BukkitTask task : tasks) task.cancel();
         for (int task : taskints) getServer().getScheduler().cancelTask(task);
+        getServer().getMessenger().unregisterOutgoingPluginChannel(this, "EAG|AyunamiMap");
     }
 
 

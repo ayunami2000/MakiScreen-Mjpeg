@@ -9,6 +9,8 @@ public class ScreenPart {
   public byte[] lastFrameBuffer;
   public boolean modified;
 
+  //public MapPacketCodec mapPacketCodec;
+
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof ScreenPart)) {
@@ -20,5 +22,7 @@ public class ScreenPart {
   public ScreenPart(int mapId, int partId) {
     this.mapId = mapId;
     this.partId = partId;
+    //this.mapPacketCodec = new MapPacketCodec(mapId);
+    //this.mapPacketCodec.deflate(9);
   }
 }

@@ -1,9 +1,6 @@
 package cat.maki.MakiScreen;
 
-import net.minecraft.server.v1_5_R3.Packet131ItemData;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_5_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -29,27 +26,26 @@ class FramePacketSender extends BukkitRunnable implements Listener {
     if (buffers == null) {
       return;
     }
-    List<Packet131ItemData> packets = new ArrayList<>(MakiScreen.screens.size());
+    List<byte[]> packets = new ArrayList<>(MakiScreen.screens.size());
     for (ScreenPart screenPart : MakiScreen.screens) {
       byte[] buffer = buffers[screenPart.partId];
       if (buffer != null) {
-        for (int col = 0; col < 128; ++col) {
-          byte[] raw = new byte[131];
-          raw[0] = 0;//means map
-          raw[1] = (byte) col;//x
-          raw[2] = 0;//y
-
-          for (int row = 0; row < 128; ++row) {
-            raw[3 + row] = buffer[row * 128 + col];
-          }
-
-          Packet131ItemData packet = getPacket(screenPart.mapId, raw);
-
-          if (!screenPart.modified) {
-            packets.add(0, packet);
-          } else {
-            packets.add(packet);
-          }
+        MapPacketCodec mapPacketCodec = new MapPacketCodec(screenPart.mapId);
+        mapPacketCodec.deflate(1);
+        int[] intBuffer = new int[buffer.length];
+        for (int i = 0; i < buffer.length; i++){
+          int v = -16777216; // is this right?
+          v += ((int) buffer[i++] & 0xff); // blue
+          v += (((int) buffer[i++] & 0xff) << 8); // green
+          v += (((int) buffer[i++] & 0xff) << 16); // red
+          intBuffer[i] = v;
+        }
+        mapPacketCodec.setPixels(intBuffer);
+        byte[] packet = mapPacketCodec.getNextPacket();
+        if (!screenPart.modified) {
+          packets.add(0, packet);
+        } else {
+          packets.add(packet);
         }
         screenPart.modified = true;
         screenPart.lastFrameBuffer = buffer;
@@ -94,19 +90,9 @@ class FramePacketSender extends BukkitRunnable implements Listener {
   }
   */
 
-  private void sendToPlayer(Player player, List<Packet131ItemData> packets) {
-    CraftPlayer craftPlayer = (CraftPlayer) player;
-    for (Packet131ItemData packet : packets) {
-      if (packet != null) {
-        craftPlayer.getHandle().playerConnection.networkManager.queue(packet);
-      }
+  private void sendToPlayer(Player player, List<byte[]> packets) {
+    for (byte[] packet : packets) {
+      player.sendPluginMessage(MakiScreen.INSTANCE, "EAG|AyunamiMap", packet);
     }
-  }
-
-  private Packet131ItemData getPacket(int mapId, byte[] data) {
-    if (data == null) {
-      throw new NullPointerException("data is null");
-    }
-    return new Packet131ItemData((short) Material.MAP.getId(), (short) mapId, data);
   }
 }
