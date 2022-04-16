@@ -48,15 +48,25 @@ public class ImageManager implements Listener {
      *
      */
     public void init() {
-        Bukkit.getServer().getPluginManager().registerEvents(this, MakiScreen.INSTANCE);
         loadImages();
+        savedImages.forEach((mapId, frame) -> {
+            MapView view = Bukkit.getServer().getMap((short) (int) mapId);
+            if (view != null) {
+                for (MapRenderer renderer : view.getRenderers())
+                    view.removeRenderer(renderer);
+                view.setScale(Scale.CLOSEST);
+                MakiScreen.screens.add(new ScreenPart(view.getId(), getImage(view.getId())));
+            }
+        });
+        Bukkit.getServer().getPluginManager().registerEvents(this, MakiScreen.INSTANCE);
     }
 
 
     @EventHandler
-    public void onMapInitEvent(MapInitializeEvent event) {
-        if (hasImage(event.getMap().getId())) {
-            MapView view = event.getMap();
+    public void onMapInitEvent(MapInitializeEvent event) { // in 1.5.2, this is NOT called on server load...
+        MapView view = event.getMap();
+        System.out.println(view.getId());
+        if (hasImage(view.getId())) {
             for (MapRenderer renderer : view.getRenderers())
                 view.removeRenderer(renderer);
             view.setScale(Scale.CLOSEST);
@@ -91,7 +101,7 @@ public class ImageManager implements Listener {
     }
 
 
-    public Integer getImage(int id) {
+    public int getImage(int id) {
         return savedImages.get(id);
     }
 
