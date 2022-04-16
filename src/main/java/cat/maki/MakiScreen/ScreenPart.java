@@ -6,10 +6,8 @@ public class ScreenPart {
 
   public final int mapId;
   public final int partId;
-  public byte[] lastFrameBuffer;
+  public int[] lastFrameBuffer;
   public boolean modified;
-
-  //public MapPacketCodec mapPacketCodec;
 
   @Override
   public boolean equals(Object obj) {
@@ -22,7 +20,5 @@ public class ScreenPart {
   public ScreenPart(int mapId, int partId) {
     this.mapId = mapId;
     this.partId = partId;
-    //this.mapPacketCodec = new MapPacketCodec(mapId);
-    //this.mapPacketCodec.deflate(9);
   }
 }

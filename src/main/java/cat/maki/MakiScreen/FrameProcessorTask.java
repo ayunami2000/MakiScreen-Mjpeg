@@ -4,29 +4,27 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 class FrameProcessorTask extends BukkitRunnable {
 
   private final Object lock = new Object();
-  private final Queue<byte[][]> frameBuffers = new LinkedBlockingQueue<>(450); // notice: blocking whereas guava's is not blocking // EvictingQueue.create(450)
+  private final Queue<int[][]> frameBuffers = new LinkedBlockingQueue<>(450); // notice: blocking whereas guava's is not blocking // EvictingQueue.create(450)
   private final int mapSize;
 
-  private final byte[][] ditherBuffer;
-  private final byte[][] cachedMapData;
+  private final int[][] cachedMapData;
   private final int frameWidth;
-  private byte[] frameData;
+  private int[] frameData;
 
   FrameProcessorTask(int mapSize, int mapWidth) {
     this.mapSize = mapSize;
     this.frameWidth = mapWidth * 128;
-    this.ditherBuffer = new byte[2][frameWidth << 2];
-    this.cachedMapData = new byte[mapSize][];
+    this.cachedMapData = new int[mapSize][];
   }
 
-  public Queue<byte[][]> getFrameBuffers() {
+  public Queue<int[][]> getFrameBuffers() {
     return frameBuffers;
   }
 
@@ -36,7 +34,7 @@ class FrameProcessorTask extends BukkitRunnable {
 
   public static BufferedImage resize(BufferedImage img, int newW, int newH) {
     Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
-    BufferedImage dimg = new BufferedImage(newW, newH, img.getType());
+    BufferedImage dimg = new BufferedImage(newW, newH, img.getType()); // todo: combine with toBufferedImage() call for performance
 
     Graphics2D g2d = dimg.createGraphics();
     g2d.drawImage(tmp, 0, 0, null);
@@ -55,9 +53,9 @@ class FrameProcessorTask extends BukkitRunnable {
       if(frame.getWidth()!=ConfigFile.getVCWidth()||frame.getHeight()!=ConfigFile.getVCHeight()){
         frame = resize(frame,ConfigFile.getVCWidth(),ConfigFile.getVCHeight());
       }
-      frameData = ((DataBufferByte) frame.getRaster().getDataBuffer()).getData();
+      frameData = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
 
-      byte[][] buffers = new byte[mapSize][];
+      int[][] buffers = new int[mapSize][];
 
       for (int partId = 0; partId < buffers.length; partId++) {
         buffers[partId] = getMapData(partId, frameWidth);
@@ -70,7 +68,7 @@ class FrameProcessorTask extends BukkitRunnable {
     }
   }
 
-  private byte[] getMapData(int partId, int width) {
+  private int[] getMapData(int partId, int width) {
     int offset = 0;
     int startX = ((partId % ConfigFile.getMapWidth()) * 128);
     int startY = ((partId / ConfigFile.getMapWidth()) * 128);
@@ -78,15 +76,15 @@ class FrameProcessorTask extends BukkitRunnable {
     int maxX = startX + 128;
 
     boolean modified = false;
-    byte[] bytes = this.cachedMapData[partId];
+    int[] bytes = this.cachedMapData[partId];
     if (bytes == null) {
-      bytes = new byte[128 * 128];
+      bytes = new int[128 * 128];
       modified = true;
     }
     for (int y = startY; y < maxY; y++) {
       int yIndex = y * width;
       for (int x = startX; x < maxX; x++) {
-        byte newColor = frameData[yIndex + x];
+        int newColor = frameData[yIndex + x];
         if (modified) {
           bytes[offset] = newColor;
         } else {
@@ -101,7 +99,7 @@ class FrameProcessorTask extends BukkitRunnable {
 
     if (modified) {
       this.cachedMapData[partId] = bytes;
-      byte[] result = new byte[bytes.length];
+      int[] result = new int[bytes.length];
       System.arraycopy(bytes,0, result, 0, bytes.length);
       return result;
     }

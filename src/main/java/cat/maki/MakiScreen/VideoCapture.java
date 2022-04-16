@@ -15,13 +15,13 @@ class VideoCaptureMjpeg extends Thread {
 
     public static BufferedImage toBufferedImage(Image img)
     {
-        if (img instanceof BufferedImage && ((BufferedImage) img).getType() == BufferedImage.TYPE_3BYTE_BGR)
+        if (img instanceof BufferedImage && ((BufferedImage) img).getType() == BufferedImage.TYPE_INT_RGB)
         {
             return (BufferedImage) img;
         }
 
         // Create a buffered image with transparency
-        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
 
         // Draw the image on to the buffered image
         Graphics2D bGr = bimage.createGraphics();

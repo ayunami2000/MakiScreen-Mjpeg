@@ -9,6 +9,10 @@ import java.util.zip.DeflaterOutputStream;
 
 public class MapPacketCodec {
 	
+	public interface FragmentHandler {
+		void sendFragment(byte[] data, boolean isLastFragment);
+	}
+	
 	public enum PixelFormat {
 		R5_G6_B5, R8_G8_B8
 	}
@@ -51,7 +55,7 @@ public class MapPacketCodec {
 		pixelFormat = pix == null ? PixelFormat.R5_G6_B5 : pix;
 		return this;
 	}
-
+	
 	/**
 	 * @param pixels If pallete is disabled, array of 16384 integers each containing the RGB of a pixel. If
 	 * pallete is enabled, array of 16384 integers each containing an index in the current pallete between 0 and 255
@@ -76,7 +80,7 @@ public class MapPacketCodec {
 		palleteIsDirty = false;
 		int[] pxls = new int[16384];
 		pixels.getRGB(0, 0, 128, 128, pxls, 0, 128);
-		setPallete(pxls);
+		setPixels(pxls);
 		return this;
 	}
 	
@@ -140,11 +144,12 @@ public class MapPacketCodec {
 		}
 		try {
 			ByteArrayOutputStream o = new ByteArrayOutputStream();
-			DataOutputStream s = new DataOutputStream(o);
-			s.writeShort(mapId);
+			DataOutputStream s;
 			if(deflate != null) {
-				s.write(1);
+				o.write(1);
 				s = new DataOutputStream(new DeflaterOutputStream(o, deflate));
+			}else {
+				s = new DataOutputStream(o);
 			}
 			if(!palleteIsSet || pallete == null) {
 				palleteIsSet = false;
@@ -152,7 +157,7 @@ public class MapPacketCodec {
 					s.write(3);
 					for(int i = 0; i < 16384; ++i) {
 						int j = pixels[i];
-						int r = (j >> 27) & 0x1F;
+						int r = (j >> 19) & 0x1F;
 						int g = (j >> 10) & 0x3F;
 						int b = (j >> 3) & 0x1F;
 						s.writeShort((r << 11) | (g << 5) | b);
@@ -161,8 +166,8 @@ public class MapPacketCodec {
 					s.write(2);
 					for(int i = 0; i < 16384; ++i) {
 						int j = pixels[i];
-						s.write((j >> 24) & 0xFF);
 						s.write((j >> 16) & 0xFF);
+						s.write((j >> 8) & 0xFF);
 						s.write(j & 0xFF);
 					}
 				}else {
@@ -175,7 +180,7 @@ public class MapPacketCodec {
 						s.write(pallete.length);
 						for(int i = 0; i < pallete.length; ++i) {
 							int j = pallete[i];
-							int r = (j >> 27) & 0x1F;
+							int r = (j >> 19) & 0x1F;
 							int g = (j >> 10) & 0x3F;
 							int b = (j >> 3) & 0x1F;
 							s.writeShort((r << 11) | (g << 5) | b);
@@ -185,8 +190,8 @@ public class MapPacketCodec {
 						s.write(pallete.length);
 						for(int i = 0; i < pallete.length; ++i) {
 							int j = pallete[i];
-							s.write((j >> 24) & 0xFF);
 							s.write((j >> 16) & 0xFF);
+							s.write((j >> 8) & 0xFF);
 							s.write(j & 0xFF);
 						}
 					}else {
@@ -201,6 +206,7 @@ public class MapPacketCodec {
 				}
 			}
 			pixels = null;
+			s.close();
 			return o.toByteArray();
 		}catch(IOException e) {
 			throw new RuntimeException("Failed to write ayunami map packet");

@@ -1,5 +1,6 @@
 package cat.maki.MakiScreen;
 
+import net.minecraft.server.v1_5_R3.Packet131ItemData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -11,10 +12,10 @@ import java.util.Queue;
 
 class FramePacketSender extends BukkitRunnable implements Listener {
   private long frameNumber = 0;
-  private final Queue<byte[][]> frameBuffers;
+  private final Queue<int[][]> frameBuffers;
   private final MakiScreen plugin;
 
-  public FramePacketSender(MakiScreen plugin, Queue<byte[][]> frameBuffers) {
+  public FramePacketSender(MakiScreen plugin, Queue<int[][]> frameBuffers) {
     this.frameBuffers = frameBuffers;
     this.plugin = plugin;
     this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -22,26 +23,28 @@ class FramePacketSender extends BukkitRunnable implements Listener {
 
   @Override
   public void run() {
-    byte[][] buffers = frameBuffers.poll();
+    int[][] buffers = frameBuffers.poll();
     if (buffers == null) {
       return;
     }
-    List<byte[]> packets = new ArrayList<>(MakiScreen.screens.size());
+    List<Packet131ItemData> packets = new ArrayList<>(MakiScreen.screens.size());
     for (ScreenPart screenPart : MakiScreen.screens) {
-      byte[] buffer = buffers[screenPart.partId];
+      int[] buffer = buffers[screenPart.partId];
       if (buffer != null) {
-        MapPacketCodec mapPacketCodec = new MapPacketCodec(screenPart.mapId);
-        mapPacketCodec.deflate(1);
+        MapPacketCodecBukkit mapPacketCodec = new MapPacketCodecBukkit(screenPart.mapId);
+        mapPacketCodec.deflate(0);
+        /*
         int[] intBuffer = new int[buffer.length];
         for (int i = 0; i < buffer.length; i++){
-          int v = -16777216; // is this right?
-          v += ((int) buffer[i++] & 0xff); // blue
-          v += (((int) buffer[i++] & 0xff) << 8); // green
-          v += (((int) buffer[i++] & 0xff) << 16); // red
-          intBuffer[i] = v;
+          intBuffer[i] = (-16777216)
+                  | ((buffer[i++] & 0xff) << 16)
+                  | ((buffer[i++] & 0xff) << 8)
+                  | (buffer[i++] & 0xff);
         }
-        mapPacketCodec.setPixels(intBuffer);
-        byte[] packet = mapPacketCodec.getNextPacket();
+        */
+        mapPacketCodec.setPixels(buffer);
+        Packet131ItemData packet = (Packet131ItemData) mapPacketCodec.getNextBukkitPacket();
+        if (packet == null) continue;
         if (!screenPart.modified) {
           packets.add(0, packet);
         } else {
@@ -59,7 +62,7 @@ class FramePacketSender extends BukkitRunnable implements Listener {
     }
 
     if (frameNumber % 300 == 0) {
-      byte[][] peek = frameBuffers.peek();
+      int[][] peek = frameBuffers.peek();
       if (peek != null) {
         frameBuffers.clear();
         frameBuffers.offer(peek);
@@ -90,9 +93,9 @@ class FramePacketSender extends BukkitRunnable implements Listener {
   }
   */
 
-  private void sendToPlayer(Player player, List<byte[]> packets) {
-    for (byte[] packet : packets) {
-      player.sendPluginMessage(MakiScreen.INSTANCE, "EAG|AyunamiMap", packet);
+  private void sendToPlayer(Player player, List<Packet131ItemData> packets) {
+    for (Packet131ItemData packet : packets) {
+      MapPacketCodecBukkit.nativeSendPacketToPlayer(player, packet);
     }
   }
 }
